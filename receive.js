@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const fs = require('fs');
 const client = new Discord.Client();
-const config = require('./auth.json');
+const prefix = "";
 // make a new stream for each time someone starts to talk
 function generateOutputFile(channel, member) {
   // use IDs instead of username cause some people have stupid emojis in their name
@@ -9,7 +9,7 @@ function generateOutputFile(channel, member) {
   return fs.createWriteStream(fileName);
 }
 client.on('message', msg => {
-  if (msg.content.startsWith(config.prefix + 'join')) {
+  if (msg.content.startsWith(prefix + 'join')) {
     let [command, ...channelName] = msg.content.split(" ");
     if (!msg.guild) {
       return msg.reply('no private service is available in your area at the moment. Please contact a service representative for more details.');
@@ -44,14 +44,14 @@ client.on('message', msg => {
       })
       .catch(console.log);
   }
-  if (msg.content.startsWith(config.prefix + 'leave')) {
+  if (msg.content.startsWith(prefix + 'leave')) {
     let [command, ...channelName] = msg.content.split(" ");
     let voiceChannel = msg.guild.channels.find("name", channelName.join(" "));
     voiceChannel.leave();
   }
 });
 
-client.login(config.token);
+client.login('NDY1NzQ1ODc4NDk0MjE2MjA0.DiR_Mw.Zcr7SkOwKq1MaJU1u4wrFRx2j4E');
 
 client.on('ready', () => {
   console.log('ready!');
