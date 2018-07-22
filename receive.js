@@ -1,16 +1,9 @@
 const Discord = require("discord.js");
 const fs = require('fs');
-const path = require('path');
 const client = new Discord.Client();
-const prefix = "";
-// make a new stream for each time someone starts to talk
-function generateOutputFile(channel, member) {
-  // use IDs instead of username cause some people have stupid emojis in their name
-  const fileName = `./recordings/${channel.id}-${member.id}-${Date.now()}.pcm`;
-  return fs.createWriteStream(fileName);
-}
+
 client.on('message', msg => {
-  if (msg.content.startsWith(prefix + 'join')) {
+  if (msg.content.startsWith('rec')) {
     let [command, ...channelName] = msg.content.split(" ");
     if (!msg.guild) {
       return msg.reply('no private service is available in your area at the moment. Please contact a service representative for more details.');
@@ -23,33 +16,24 @@ client.on('message', msg => {
     voiceChannel.join()
       .then(conn => {
         msg.reply('ready!');
-        // create our voice receiver
-        const receiver = conn.createReceiver();
-
-        receiver.on('opus', (user, data) => {
-          msg.channel.sendMessage(`I'm recording to ${user}`);
-          const hexString = data.toString('hex');
-          const fileName = `./recordings/rec${Date.now()}.pcm`;
-          let writeStream = fs.createWriteStream(fileName);
-          writeStream.write(`,${hexString}`);
-        })
-
+        var receiver = conn.createReceiver();
         conn.on('speaking', (user, speaking) => {
-          if (0 && speaking) {
-            msg.channel.sendMessage(`I'm listening to ${user}`);// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-            const audioStream = receiver.createPCMStream(user);// create an output stream so we can dump our data in a file
-            const outputStream = generateOutputFile(voiceChannel, user);// pipe our audio data into the file stream
+          if (speaking) {
+            var outputStream = fs.createWriteStream(`./recordings/record-${Date.now()}.opus`);// pipe our audio data into the file stream
+            msg.channel.sendMessage(`RECroding to ${user}`);// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+            const audioStream = receiver.createOpusStream(user);// create an output stream so we can dump our data in a file
             audioStream.pipe(outputStream);
-            outputStream.on("data", console.log);
+            //outputStream.on("data", console.log);
             audioStream.on('end', () => {// when the stream ends (the user stopped talking) tell the user
-              msg.channel.sendMessage(`I'm no longer listening to ${user}`);
+              msg.channel.sendMessage(`RECroding stop ${user}`);
+              outputStream.end();
             });
           }
         });
       })
       .catch(console.log);
   }
-  if (msg.content.startsWith(prefix + 'leave')) {
+  if (msg.content.startsWith('stop')) {
     let [command, ...channelName] = msg.content.split(" ");
     let voiceChannel = msg.guild.channels.find("name", channelName.join(" "));
     voiceChannel.leave();
