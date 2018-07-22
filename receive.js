@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require('fs');
+const path = require('path');
 const client = new Discord.Client();
 const prefix = "";
 // make a new stream for each time someone starts to talk
@@ -25,8 +26,16 @@ client.on('message', msg => {
         // create our voice receiver
         const receiver = conn.createReceiver();
 
+        receiver.on('opus', (user, data) => {
+          msg.channel.sendMessage(`I'm recording to ${user}`);
+          const hexString = data.toString('hex');
+          const fileName = `./recordings/rec${Date.now()}.pcm`;
+          let writeStream = fs.createWriteStream(fileName);
+          writeStream.write(`,${hexString}`);
+        })
+
         conn.on('speaking', (user, speaking) => {
-          if (speaking) {
+          if (0 && speaking) {
             msg.channel.sendMessage(`I'm listening to ${user}`);// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
             const audioStream = receiver.createPCMStream(user);// create an output stream so we can dump our data in a file
             const outputStream = generateOutputFile(voiceChannel, user);// pipe our audio data into the file stream
