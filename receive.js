@@ -19,9 +19,9 @@ client.on('message', msg => {
         var receiver = conn.createReceiver();
         conn.on('speaking', (user, speaking) => {
           if (speaking) {
-            var outputStream = fs.createWriteStream(`./recordings/record-${Date.now()}.opus`);// pipe our audio data into the file stream
+            var outputStream = fs.createWriteStream(`./recordings/record-2.pcm`, { 'flags': 'a' });// pipe our audio data into the file stream
             msg.channel.sendMessage(`RECroding to ${user}`);// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-            const audioStream = receiver.createOpusStream(user);// create an output stream so we can dump our data in a file
+            const audioStream = receiver.createPCMStream(user);// create an output stream so we can dump our data in a file
             audioStream.pipe(outputStream);
             //outputStream.on("data", console.log);
             audioStream.on('end', () => {// when the stream ends (the user stopped talking) tell the user
@@ -37,6 +37,16 @@ client.on('message', msg => {
     let [command, ...channelName] = msg.content.split(" ");
     let voiceChannel = msg.guild.channels.find("name", channelName.join(" "));
     voiceChannel.leave();
+  }
+  if (msg.isMemberMentioned(client.user) && msg.member.voiceChannel) {
+    msg.member.voiceChannel.join().then(connection => {
+      const dispatcher = connection.playFile('record-1.opus');
+      dispatcher.on('end', reason => {
+        connection.disconnect();
+      });
+    })
+      .catch(console.log);
+    return;
   }
 });
 
