@@ -7,16 +7,16 @@ ffmpeg()
   .input('./rec/clife.pcm')
   .inputOptions(['-ac 2', '-ar 48000'])
   .inputFormat('s16le')
-  .output('./rec/demo.mp3')
+  .output('./rec/demo1.mp3')
+  .outputOptions(['-ab 64k'])
   .on('end', function () {
     console.log('file has been converted succesfully');
-    var formdata = {
-      "mp3": fs.createReadStream('./rec/demo.jpg'),
-      "person": "suzuki",
-      "timeout": "180000"
+    var formData = {
+      "mp3": fs.createReadStream("./rec/demo1.mp3"),
+      "person": "suzuki"
     }
     var options = {
-      url: "http://localhost/enter.php", formData: formdata
+      url: "http://localhost/enter.php", formData: formData
     }
     request.post(options, function (err, response, body) {
       if (!err && response.statusCode == 200) {
@@ -25,22 +25,6 @@ ffmpeg()
         console.log(err);
       }
     })
-
-    //    const options = {
-    //      url: "",
-    //      method: "POST",
-    //headers: { "Content-Type":"multipart/form-data"}, //Content-Disposition: form-data
-    //      contentType: false,
-    //      processData: false,
-    //      formData: formdata,
-
-    //    }
-
-
-
-
-
-
   })
 
   .on('error', function (err) {
