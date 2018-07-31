@@ -8,9 +8,9 @@ const radioChannelId = "472264910223704074";//ブロギルラジオ
 const maxRECmin = 30;//最大録音可能時間（分）
 const dbString = {
   host: 'localhost',
-  user: 'root',
-  password: 'kx125l1',
-  database: 'recbot',
+  user: '',
+  password: '',
+  database: '',
   supportBigNumbers: true,
   bigNumberStrings: true
 }
@@ -201,7 +201,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {//ボイスチャンネ
   }
 })
 
-client.login('NDY1NzQ1ODc4NDk0MjE2MjA0.DiR_Mw.Zcr7SkOwKq1MaJU1u4wrFRx2j4E');
+client.login('please enter your bot token');
 
 client.on('ready', () => {
   console.log('RECbot on ready!');
