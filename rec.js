@@ -8,9 +8,9 @@ const radioChannelId = "472264910223704074";//ブロギルラジオ
 const maxRECmin = 30;//最大録音可能時間（分）
 const dbString = {
   host: 'localhost',
-  user: '',
-  password: '',
-  database: '',
+  user: 'root',
+  password: 'kx125l1',
+  database: 'recbot',
   supportBigNumbers: true,
   bigNumberStrings: true
 }
@@ -46,14 +46,15 @@ class _program {//ラジオ番組}
     this.sync = false;
   }
   addSummary(author, txt) {
+    var start = this.start;
     var l = this.summary.length;
-    this.summary[l] = new _summary(l, author, txt);
+    this.summary[l] = new _summary(start, author, txt);
     return l;
   }
 }
 class _summary {//まとめ
-  constructor(id, author, txt) {
-    this.id = id;
+  constructor(start, author, txt) {
+    this.start = start;
     this.upd = new Date();
     this.author = author;
     this.txt = txt;
@@ -90,9 +91,9 @@ function saveSQL(recorder) {//配信サーバー同期用SQLファイル作成
   }
   for (var i = 0; i < recorder.program.length; i++) {
     if (!recorder.program[i].fault && !recorder.program[i].sync) {
-      sql += "INSERT INTO t02program (cid,id,start,end) VALUES (";
+      sql += "INSERT INTO t02program (cid,id,start,end,sync) VALUES (";
       sql += recorder.id + "," + i + "," + dateFormat(recorder.program[i].start) + ","
-        + dateFormat(recorder.program[i].end) + ");\r\n";
+        + dateFormat(recorder.program[i].end) + ",\r\n";
       var summary = recorder.program[i].summary
       summary.sort(function (a, b) {
         if (a.author < b.author) return -1;
@@ -109,8 +110,8 @@ function saveSQL(recorder) {//配信サーバー同期用SQLファイル作成
         } else {
           txt += escTxt(summary[j].txt);
           txt = txt.length > 1500 ? txt.slice(0, 1500) : txt;
-          sql += "INSERT INTO t12summary (cid,pid,id,txt) VALUES (";
-          sql += recorder.id + "," + i + "," + summary[j].author + ",'" + txt + "');\r\n";
+          sql += "INSERT INTO t12summary (cid,start,id,txt,sync) VALUES (";
+          sql += recorder.id + "," + dateFormat(summary[j].start) + "," + summary[j].author + ",'" + txt + "',\r\n";
           txt = "";
         }
       }
@@ -201,7 +202,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {//ボイスチャンネ
   }
 })
 
-client.login('please enter your bot token');
+client.login('NDY1NzQ1ODc4NDk0MjE2MjA0.DkFSbw.awZEGJp5JbfwYt5N3_RUYTO_j9o');
 
 client.on('ready', () => {
   console.log('RECbot on ready!');
